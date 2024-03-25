@@ -25,6 +25,7 @@
     if (self) {
         _registrar = registrar;
     }
+    
     return self;
 }
 
@@ -63,12 +64,25 @@
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     _result = result;
     if ([@"playPath" isEqualToString: call.method]) {
-        [self playByPath:call.arguments[@"path"]];
+        BOOL mute = NO; // Default value
+                if (call.arguments[@"mute"] != nil) {
+                    mute = [call.arguments[@"mute"] boolValue];
+                }
+        
+        
+        [self playByPath:call.arguments[@"path"] mute:mute];
     } else if ([@"playAsset" isEqualToString:call.method]) {
         //播放asset文件
         NSString* assetPath = [_registrar lookupKeyForAsset:call.arguments[@"asset"]];
         NSString* path = [[NSBundle mainBundle] pathForResource:assetPath ofType:nil];
-        [self playByPath:path];
+
+        BOOL mute = NO; // Default value
+               if (call.arguments[@"mute"] != nil) {
+                   mute = [call.arguments[@"mute"] boolValue];
+               }
+        
+        [self playByPath:call.arguments[@"path"] mute:mute];
+        
     } else if ([@"stop" isEqualToString:call.method]) {
         if (_wrapView) {
             [_wrapView removeFromSuperview];
@@ -77,13 +91,14 @@
     }
 }
 
-- (void)playByPath:(NSString *)path{
+- (void)playByPath:(NSString *)path  mute:(BOOL)mute {
     //限制只能有一个视频在播放
     if (playStatus) {
         return;
     }
     _wrapView = [[QGVAPWrapView alloc] initWithFrame:self.view.bounds];
     _wrapView.center = self.view.center;
+    [_wrapView setMute:mute];
     _wrapView.contentMode = UIViewContentModeScaleToFill;
     _wrapView.autoDestoryAfterFinish = YES;
     [self.view addSubview:_wrapView];
