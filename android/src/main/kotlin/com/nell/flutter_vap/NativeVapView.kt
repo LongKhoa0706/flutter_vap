@@ -23,6 +23,7 @@ internal class NativeVapView(binaryMessenger: BinaryMessenger, context: Context,
     private var channel: MethodChannel
     private var methodResult: MethodChannel.Result? = null
     private var loop : Int = 0
+    private var mute : Boolean = false
     private var methodCall: MethodCall? = null
     init {
         vapView.setScaleType(ScaleType.CENTER_CROP)
@@ -72,7 +73,9 @@ internal class NativeVapView(binaryMessenger: BinaryMessenger, context: Context,
         methodResult = result
         methodCall = call
         loop = call.argument<Int>("loop") ?: 0
+        mute = call.argument<Boolean>("mute") ?: false
         vapView.setLoop(loop);
+        vapView.setMute(mute);
         when (call.method) {
             "playPath" -> {
                 call.argument<String>("path")?.let {
