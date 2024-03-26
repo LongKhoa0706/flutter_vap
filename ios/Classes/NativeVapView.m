@@ -91,6 +91,7 @@
     }
 }
 
+
 - (void)playByPath:(NSString *)path  mute:(BOOL)mute {
     //限制只能有一个视频在播放
     if (playStatus) {
@@ -102,7 +103,7 @@
     _wrapView.contentMode = UIViewContentModeScaleToFill;
     _wrapView.autoDestoryAfterFinish = YES;
     [self.view addSubview:_wrapView];
-    [_wrapView vapWrapView_playHWDMP4:path repeatCount:0 delegate:self];
+    [_wrapView playHWDMP4:path repeatCount:0 delegate:self];
 }
 
 
