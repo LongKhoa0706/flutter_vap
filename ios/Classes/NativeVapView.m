@@ -65,24 +65,30 @@
     _result = result;
     if ([@"playPath" isEqualToString: call.method]) {
         BOOL mute = NO; // Default value
-                if (call.arguments[@"mute"] != nil) {
-                    mute = [call.arguments[@"mute"] boolValue];
-                }
-        
-        
-        [self playByPath:call.arguments[@"path"] mute:mute];
+        int repeatCount = 0; // Default value
+        if (call.arguments[@"mute"] != nil) {
+            mute = [call.arguments[@"mute"] boolValue];
+        }
+        if (call.arguments[@"loop"] != nil) {
+            repeatCount = [call.arguments[@"loop"] intValue];
+        }
+
+        [self playByPath:call.arguments[@"path"] mute:mute repeatCount:repeatCount];
     } else if ([@"playAsset" isEqualToString:call.method]) {
-        //播放asset文件
+        // Play asset file
         NSString* assetPath = [_registrar lookupKeyForAsset:call.arguments[@"asset"]];
         NSString* path = [[NSBundle mainBundle] pathForResource:assetPath ofType:nil];
 
         BOOL mute = NO; // Default value
-               if (call.arguments[@"mute"] != nil) {
-                   mute = [call.arguments[@"mute"] boolValue];
-               }
-        
-        [self playByPath:call.arguments[@"path"] mute:mute];
-        
+        int repeatCount = 0; // Default value
+        if (call.arguments[@"mute"] != nil) {
+            mute = [call.arguments[@"mute"] boolValue];
+        }
+        if (call.arguments[@"loop"] != nil) {
+            repeatCount = [call.arguments[@"loop"] intValue];
+        }
+
+        [self playByPath:path mute:mute repeatCount:repeatCount];
     } else if ([@"stop" isEqualToString:call.method]) {
         if (_wrapView) {
             [_wrapView removeFromSuperview];
@@ -92,7 +98,7 @@
 }
 
 
-- (void)playByPath:(NSString *)path  mute:(BOOL)mute {
+- (void)playByPath:(NSString *)path mute:(BOOL)mute repeatCount:(int)repeatCount {
     //限制只能有一个视频在播放
     if (playStatus) {
         return;
@@ -100,10 +106,10 @@
     _wrapView = [[QGVAPWrapView alloc] initWithFrame:self.view.bounds];
     _wrapView.center = self.view.center;
     [_wrapView setMute:mute];
-    _wrapView.contentMode = UIViewContentModeScaleToFill;
+    _wrapView.contentMode = UIViewContentModeScaleAspectFill;
     _wrapView.autoDestoryAfterFinish = YES;
     [self.view addSubview:_wrapView];
-    [_wrapView playHWDMP4:path repeatCount:0 delegate:self];
+    [_wrapView playHWDMP4:path repeatCount:repeatCount delegate:self];
 }
 
 
